@@ -1,0 +1,51 @@
+
+# tasks file for apache
+#
+
+- name: Creating Directory
+  file:
+      path: "{{ dvd_dir }}"
+      state: directory
+
+- name: Mounting DVD
+  mount:
+      src: "/dev/cdrom"
+      path: "{{ dvd_dir }}"
+      state: mounted
+      fstype: "iso9660"
+
+- name: Yum AppStream
+  yum_repository:
+      baseurl: "{{ dvd_dir }}/AppStream"
+      name: "Appstream"
+      description: "Yum for Appstream"
+      gpgcheck: no
+
+
+- name: Yum BaseOs
+  yum_repository:
+      baseurl: "{{ dvd_dir }}/BaseOS"
+      name: "BaseOS"
+      description: "Yum for BaseOS"
+      gpgcheck: no
+
+- name: Installing HTTPD
+  package:
+      name: "httpd"
+      state: present
+
+- service:
+        name: 'httpd'
+        state: 'started'
+
+- name: copy webpage
+  copy:
+      dest: "/var/www/html"
+      src: index.html
+
+- name: Start firewall
+  service:
+      name: "firewalld"
+      state: started
+      enabled: yes
+

@@ -1,0 +1,25 @@
+- name: Installing haproxy
+  package:
+        name: haproxy
+        state: present
+
+- name: Configuring haproxy
+  template:
+        src: haproxy.cfg
+        dest: /etc/haproxy/
+  notify: lb restart
+
+
+- name: Start firewall
+  service:
+      name: "firewalld"
+      state: started
+      enabled: yes
+
+
+- name: Allow Firewall port https
+  firewalld:
+        port: "{{ allow_port }}/tcp"
+        state: enabled
+        permanent: yes
+        immediate: yes
